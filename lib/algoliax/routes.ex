@@ -4,6 +4,7 @@ defmodule Algoliax.Routes do
 
   @paths %{
     search: {"/{index_name}/query", :post},
+    search_multiple: {"/*/queries", :post},
     search_facet: {"/{index_name}/facets/{facet_name}/query", :post},
     delete_index: {"/{index_name}", :delete},
     move_index: {"/{index_name}/operation", :post},
@@ -17,7 +18,7 @@ defmodule Algoliax.Routes do
     delete_by: {"/{index_name}/deleteByQuery", :post}
   }
 
-  def url(action, url_params, retry \\ 0) do
+  def url(action, url_params \\ [], retry \\ 0) do
     {action_path, method} =
       @paths
       |> Map.get(action)
@@ -29,6 +30,8 @@ defmodule Algoliax.Routes do
 
     {method, url}
   end
+
+  defp build_path(path, []), do: path
 
   defp build_path(path, args) do
     args
