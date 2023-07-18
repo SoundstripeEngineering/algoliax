@@ -26,6 +26,12 @@ defmodule Algoliax.ApiMockServer do
     send_resp(conn, 200, Jason.encode!(response))
   end
 
+  # Search multiple indices (POST): https://www.algolia.com/doc/rest-api/search/#search-multiple-indices
+  post "/:application_id/:mode/asterisk/query" do
+    response = search_multi_response()
+    send_resp(conn, 200, Jason.encode!(response))
+  end
+
   # Search index (POST): https://www.algolia.com/doc/rest-api/search/#search-index-post
   post "/:application_id/:mode/:index_name/facets/:facet_name/query" do
     response = search_facet_response()
@@ -187,14 +193,14 @@ defmodule Algoliax.ApiMockServer do
   end
 
   match _ do
-    Logger.warn(inspect(conn))
+    Logger.warning(inspect(conn))
     send_resp(conn, 404, "oops")
   end
 
   defp handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
-    Logger.warn(kind, label: :kind)
-    Logger.warn(reason, label: :reason)
-    Logger.warn(stack, label: :stack)
+    Logger.warning(kind, label: :kind)
+    Logger.warning(reason, label: :reason)
+    Logger.warning(stack, label: :stack)
     send_resp(conn, conn.status, "Something went wrong")
   end
 
@@ -269,6 +275,77 @@ defmodule Algoliax.ApiMockServer do
       query: "george clo",
       parsed_query: "george clo",
       params: "query=george%20clo&hitsPerPage=2&getRankingInfo=1"
+    }
+  end
+
+  defp search_multi_response do
+    %{
+      results: [
+        %{
+          hits: [
+            %{
+              name: "Betty Jane Mccamey",
+              company: "Vita Foods Inc.",
+              email: "betty@mccamey.com",
+              objectID: "6891Y2usk0",
+              _highlightResult: %{
+                name: %{
+                  value: "Betty <b>Jan</b>e Mccamey",
+                  matchLevel: "full"
+                },
+                company: %{
+                  value: "Vita Foods Inc.",
+                  matchLevel: "none"
+                },
+                email: %{
+                  value: "betty@mccamey.com",
+                  matchLevel: "none"
+                }
+              }
+            }
+          ],
+          page: 0,
+          nbHits: 1,
+          nbPages: 1,
+          hitsPerPage: 20,
+          processingTimeMS: 1,
+          query: "van",
+          params: "query=van",
+          index: "index1"
+        },
+        %{
+          hits: [
+            %{
+              name: "Gayla Geimer Dan",
+              company: "Ortman Mccain Co",
+              email: "gayla@geimer.com",
+              objectID: "ap78784310",
+              _highlightResult: %{
+                name: %{
+                  value: "Gayla Geimer <b>Dan</b>",
+                  matchLevel: "full"
+                },
+                company: %{
+                  value: "Ortman Mccain Co",
+                  matchLevel: "none"
+                },
+                email: %{
+                  highlighted: "gayla@geimer.com",
+                  matchLevel: "none"
+                }
+              }
+            }
+          ],
+          page: 0,
+          nbHits: 1,
+          nbPages: 1,
+          hitsPerPage: 20,
+          processingTimeMS: 1,
+          query: "van",
+          params: "query=van",
+          index: "index2"
+        }
+      ]
     }
   end
 
