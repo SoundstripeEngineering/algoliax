@@ -3,19 +3,44 @@ defmodule Algoliax.Routes do
   alias Algoliax.Config
 
   @paths %{
-    search: {"/{index_name}/query", :post},
-    search_multiple: {"/*/queries", :post},
-    search_facet: {"/{index_name}/facets/{facet_name}/query", :post},
-    delete_index: {"/{index_name}", :delete},
-    move_index: {"/{index_name}/operation", :post},
-    get_settings: {"/{index_name}/settings", :get},
-    configure_index: {"/{index_name}/settings", :put},
-    save_objects: {"/{index_name}/batch", :post},
-    get_object: {"/{index_name}/{object_id}", :get},
-    save_object: {"/{index_name}/{object_id}", :put},
-    delete_object: {"/{index_name}/{object_id}", :delete},
-    task: {"/{index_name}/task/{task_id}", :get},
-    delete_by: {"/{index_name}/deleteByQuery", :post}
+    # Search Endpoints
+    search: {"/{index_name}/query", :read, :post},
+    search_multiple: {"/*/queries", :read, :post},
+    search_facet: {"/{index_name}/facets/{facet_name}/query", :write, :post},
+    browse_index_post: {"/{index_name}/browse", :read, :post},
+    browse_index_get: {"/{index_name}/browse", :read, :get},
+    # Object Endpoints
+    add_object: {"/{index_name}", :write, :post},
+    save_object: {"/{index_name}/{object_id}", :write, :put},
+    delete_object: {"/{index_name}/{object_id}", :write, :delete},
+    delete_by: {"/{index_name}/deleteByQuery", :write, :post},
+    clear_objects: {"/{index_name}/clear", :write, :post},
+    partial_update: {"/{index_name}/{object_id}/partial", :write, :post},
+    save_objects: {"/{index_name}/batch", :write, :post},
+    save_objects_multiple: {"/*/batch", :write, :post},
+    get_objects_multiple: {"/*/objects", :read, :post},
+    get_object: {"/{index_name}/{object_id}", :read, :get},
+    # Setting Endpoints
+    get_settings: {"/{index_name}/settings", :read, :get},
+    configure_index: {"/{index_name}/settings", :write, :put},
+    # Index Endpoints
+    delete_index: {"/{index_name}", :write, :delete},
+    move_index: {"/{index_name}/operation", :write, :post},
+    list_indices: {"", :read, :get},
+    # Synonym Endpoints
+    save_synonym: {"/{index_name}/synonyms/{object_id}", :write, :put},
+    save_synonyms: {"/{index_name}/synonyms/batch", :write, :post},
+    get_synonym: {"/{index_name}/synonyms/{object_id}", :read, :get},
+    clear_synonyms: {"/{index_name}/synonyms/clear", :write, :post},
+    delete_synonym: {"/{index_name}/synonyms/{object_id}", :write, :delete},
+    search_synonyms: {"/{index_name}/synonyms/search", :read, :post},
+    # Key Endpoints
+    # Rule Endpoints
+    # Dictionary Endpoints
+    # MultiCluster Endpoints
+    # Vault Endpoints
+    # Advanced Endpoints
+    task: {"/{index_name}/task/{task_id}", :read, :get}
   }
 
   def url(action, url_params \\ [], retry \\ 0) do
