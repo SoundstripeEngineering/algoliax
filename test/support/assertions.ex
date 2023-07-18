@@ -55,11 +55,11 @@ defmodule Algoliax.Assertions do
 
   def equal_path?(nil, _), do: true
 
+  def equal_path?(path, request_path) when is_struct(path, Regex) do
+    Regex.match?(path, request_path)
+  end
+
   def equal_path?(path, request_path) do
-    if Regex.regex?(path) do
-      Regex.match?(path, request_path)
-    else
-      path == request_path
-    end
+    path == request_path
   end
 end
