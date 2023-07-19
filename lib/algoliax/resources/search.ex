@@ -19,6 +19,17 @@ defmodule Algoliax.Resources.Search do
     })
   end
 
+  def search_multiple(_module, _settings, queries, strategy) do
+    request(%{
+      action: :search_multiple,
+      url_params: [],
+      body: %{
+        requests: queries,
+        strategy: strategy
+      }
+    })
+  end
+
   def search_facet(module, settings, facet_name, facet_query, params) do
     index_name = index_name(module, settings)
 
