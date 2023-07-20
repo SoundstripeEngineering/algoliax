@@ -16,30 +16,31 @@ defmodule Algoliax.ApiMockServer do
   )
 
   plug(Plug.Logger, log: :debug)
+  plug(:handle_asterisk)
   plug(:match)
   plug(:save_request)
   plug(:dispatch)
 
   # Search index (POST): https://www.algolia.com/doc/rest-api/search/#search-index-post
-  post "/:application_id/:mode/:index_name/query" do
+  post "/:application_id/:mode/:api_version/indexes/:index_name/query" do
     response = search_response()
     send_resp(conn, 200, Jason.encode!(response))
   end
 
   # Search multiple indices (POST): https://www.algolia.com/doc/rest-api/search/#search-multiple-indices
-  post "/:application_id/:mode/asterisk/query" do
+  post "/:application_id/:mode/:api_version/indexes/asterisk/queries" do
     response = search_multi_response()
     send_resp(conn, 200, Jason.encode!(response))
   end
 
   # Search index (POST): https://www.algolia.com/doc/rest-api/search/#search-index-post
-  post "/:application_id/:mode/:index_name/facets/:facet_name/query" do
+  post "/:application_id/:mode/:api_version/indexes/:index_name/facets/:facet_name/query" do
     response = search_facet_response()
     send_resp(conn, 200, Jason.encode!(response))
   end
 
   # get settings: https://www.algolia.com/doc/rest-api/search/#get-settings
-  get "/:application_id/:mode/:index_name/settings" do
+  get "/:application_id/:mode/:api_version/indexes/:index_name/settings" do
     response = %{
       searchableAttributes: ["test"]
     }
@@ -48,7 +49,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # set settings: https://www.algolia.com/doc/rest-api/search/#set-settings
-  put "/:application_id/:mode/:index_name/settings" do
+  put "/:application_id/:mode/:api_version/indexes/:index_name/settings" do
     response = %{
       updatedAt: DateTime.utc_now(),
       taskID: :rand.uniform(10_000)
@@ -60,7 +61,7 @@ defmodule Algoliax.ApiMockServer do
   @max_retries_before_published 3
 
   # get tasks info
-  get "/:application_id/:mode/:index_name/task/:task_id" do
+  get "/:application_id/:mode/:api_version/indexes/:index_name/task/:task_id" do
     task_id = Map.get(conn.params, "task_id")
     retry_count = Algoliax.TaskStore.get(task_id)
 
@@ -77,7 +78,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Add/update object (with ID): https://www.algolia.com/doc/rest-api/search/#addupdate-object-with-id
-  put "/:application_id/:mode/:index_name/:object_id" do
+  put "/:application_id/:mode/:api_version/indexes/:index_name/:object_id" do
     response = %{
       updatedAt: DateTime.utc_now(),
       taskID: :rand.uniform(10_000),
@@ -88,7 +89,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Batch write operations: https://www.algolia.com/doc/rest-api/search/#batch-write-operations
-  post "/:application_id/:mode/:index_name/batch" do
+  post "/:application_id/:mode/:api_version/indexes/:index_name/batch" do
     requests = conn.body_params["requests"]
 
     object_ids =
@@ -106,7 +107,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Copy/move index: https://www.algolia.com/doc/rest-api/search/#copymove-index
-  post "/:application_id/:mode/:index_name/operation" do
+  post "/:application_id/:mode/:api_version/indexes/:index_name/operation" do
     response = %{
       updatedAt: "2013-01-18T15:33:13.556Z",
       taskID: 681
@@ -116,7 +117,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Raise a 403 error
-  get "/:application_id/:mode/index_name_not_authorized/:object_id" do
+  get "/:application_id/:mode/:api_version/indexes/index_name_not_authorized/:object_id" do
     send_resp(
       conn,
       403,
@@ -125,7 +126,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Get object: https://www.algolia.com/doc/rest-api/search/#get-object
-  get "/:application_id/:mode/:count/:index_name/:object_id" do
+  get "/:application_id/:mode/:api_version/indexes/:count/:index_name/:object_id" do
     case Map.get(conn.params, "object_id") do
       "known" ->
         response = %{
@@ -142,7 +143,7 @@ defmodule Algoliax.ApiMockServer do
     end
   end
 
-  get "/:application_id/:mode/:index_name/:object_id" do
+  get "/:application_id/:mode/:api_version/indexes/:index_name/:object_id" do
     case Map.get(conn.params, "object_id") do
       "known" ->
         response = %{
@@ -168,7 +169,7 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # Delete object: https://www.algolia.com/doc/rest-api/search/#delete-object
-  delete "/:application_id/:mode/:index_name/:object_id" do
+  delete "/:application_id/:mode/:api_version/indexes/:index_name/:object_id" do
     response = %{
       deletedAt: "2013-01-18T15:33:13.556Z",
       taskID: 681
@@ -178,12 +179,12 @@ defmodule Algoliax.ApiMockServer do
   end
 
   # delete index: https://www.algolia.com/doc/rest-api/search/#delete-index
-  delete "/:application_id/:mode/:index_name" do
+  delete "/:application_id/:mode/:api_version/indexes/:index_name" do
     send_resp(conn, 200, Jason.encode!(%{}))
   end
 
   # delete index objects that match a query filter: https://www.algolia.com/doc/rest-api/search/#delete-by
-  post "/:application_id/:mode/:index_name/deleteByQuery" do
+  post "/:application_id/:mode/:api_version/indexes/:index_name/deleteByQuery" do
     response = %{
       "taskID" => 6311,
       "updatedAt" => "2023-02-20T17:45:11.523Z"
@@ -365,4 +366,20 @@ defmodule Algoliax.ApiMockServer do
       ]
     }
   end
+
+  defp handle_asterisk(conn, _) do
+    %{conn | path_info: replace_asterisk_in_path_info(conn.path_info)}
+  end
+
+  defp replace_asterisk_in_path_info([head | tail]) do
+    case head do
+      "*" ->
+        ["asterisk" | replace_asterisk_in_path_info(tail)]
+
+      _ ->
+        [head | replace_asterisk_in_path_info(tail)]
+    end
+  end
+
+  defp replace_asterisk_in_path_info([]), do: []
 end
