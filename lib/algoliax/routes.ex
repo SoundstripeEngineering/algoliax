@@ -117,7 +117,7 @@ defmodule Algoliax.Routes do
     |> Kernel.<>(path)
   end
 
-  defp build_url(path, :write, retry) do
+  defp build_url(path, _, retry) do
     url_retry()
     |> String.replace(~r/{{application_id}}/, Config.application_id())
     |> String.replace(~r/{{retry}}/, to_string(retry))
@@ -137,7 +137,7 @@ defmodule Algoliax.Routes do
 
     defp url_retry do
       port = System.get_env("SLACK_MOCK_API_PORT", "8002")
-      "http://localhost:#{port}/{{application_id}}/retry/{{retry}}"
+      "http://localhost:#{port}/{{application_id}}/{{retry}}-retry"
     end
   else
     defp url_read do
