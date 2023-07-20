@@ -9,10 +9,10 @@ defmodule Algoliax.ClientTest do
       0
     )
 
-    assert_request("GET", "/APPLICATION_ID/read/index_name/error", %{})
-    assert_request("GET", "/APPLICATION_ID/retry/1/index_name/error", %{})
-    assert_request("GET", "/APPLICATION_ID/retry/2/index_name/error", %{})
-    assert_request("GET", "/APPLICATION_ID/retry/3/index_name/error", %{})
+    assert_request("GET", "/APPLICATION_ID/read/1/indexes/index_name/error", %{})
+    assert_request("GET", "/APPLICATION_ID/1-retry/1/indexes/index_name/error", %{})
+    assert_request("GET", "/APPLICATION_ID/2-retry/1/indexes/index_name/error", %{})
+    assert_request("GET", "/APPLICATION_ID/3-retry/1/indexes/index_name/error", %{})
   end
 
   test "Error http" do
