@@ -73,4 +73,8 @@ defmodule Algoliax.UtilsTest do
                :algoliax_people
     end
   end
+
+  test "format_queries/1" do
+    assert Algoliax.Utils.format_queries([%{params: %{foo: "bar"}}]) == [%{params: "foo=bar"}]
+  end
 end

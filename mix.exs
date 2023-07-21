@@ -31,7 +31,7 @@ defmodule Algoliax.MixProject do
 
   defp deps do
     [
-      {:hackney, "~> 1.18"},
+      {:hackney, git: "https://github.com/kyleboe/hackney", ref: "2d44c63"},
       {:jason, "~> 1.3"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false, override: true},
       {:ecto, "~> 3.0", optional: true},

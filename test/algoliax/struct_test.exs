@@ -21,7 +21,7 @@ defmodule AlgoliaxTest.StructTest do
     end
 
     test "save_object/1" do
-      reference = :random.uniform(1_000_000) |> to_string()
+      reference = :rand.uniform(1_000_000) |> to_string()
       person = %PeopleStruct{reference: reference, last_name: "Doe", first_name: "John", age: 77}
       assert {:ok, res} = PeopleStruct.save_object(person)
 
@@ -41,8 +41,8 @@ defmodule AlgoliaxTest.StructTest do
     end
 
     test "save_objects/1" do
-      reference1 = :random.uniform(1_000_000) |> to_string()
-      reference2 = :random.uniform(1_000_000) |> to_string()
+      reference1 = :rand.uniform(1_000_000) |> to_string()
+      reference2 = :rand.uniform(1_000_000) |> to_string()
 
       people = [
         %PeopleStruct{reference: reference1, last_name: "Doe", first_name: "John", age: 77},
@@ -61,8 +61,8 @@ defmodule AlgoliaxTest.StructTest do
     end
 
     test "save_objects/1 w/ force_delete: true" do
-      reference1 = :random.uniform(1_000_000) |> to_string()
-      reference2 = :random.uniform(1_000_000) |> to_string()
+      reference1 = :rand.uniform(1_000_000) |> to_string()
+      reference2 = :rand.uniform(1_000_000) |> to_string()
 
       people = [
         %PeopleStruct{reference: reference1, last_name: "Doe", first_name: "John", age: 77},
@@ -154,7 +154,7 @@ defmodule AlgoliaxTest.StructTest do
   end
 
   describe "wait for task" do
-    reference = :random.uniform(1_000_000) |> to_string()
+    reference = :rand.uniform(1_000_000) |> to_string()
     person = %PeopleStruct{reference: reference, last_name: "Doe", first_name: "John", age: 77}
     assert {:ok, res} = PeopleStruct.save_object(person) |> Algoliax.wait_task()
 

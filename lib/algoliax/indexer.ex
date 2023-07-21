@@ -132,14 +132,15 @@ defmodule Algoliax.Indexer do
             },
             ...
           ],
-      "hitsPerPage" => 20,
-      "nbHits" => 16,
-      "nbPages" => 1,
-      "page" => 0,
-      "params" => "query=john",
-      "processingTimeMS" => 1,
-      "query" => "john"
-      }}
+          "hitsPerPage" => 20,
+          "nbHits" => 16,
+          "nbPages" => 1,
+          "page" => 0,
+          "params" => "query=john",
+          "processingTimeMS" => 1,
+          "query" => "john"
+        }
+      }
   """
 
   @callback search(query :: binary(), params :: map()) ::

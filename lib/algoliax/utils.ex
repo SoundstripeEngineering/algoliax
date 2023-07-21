@@ -45,4 +45,15 @@ defmodule Algoliax.Utils do
     |> Atom.to_string()
     |> Inflex.camelize(:lower)
   end
+
+  def format_queries([query | rest]) do
+    [format_query(query) | format_queries(rest)]
+  end
+
+  def format_queries([]), do: []
+
+  defp format_query(%{params: params} = query) do
+    query
+    |> Map.put(:params, URI.encode_query(params))
+  end
 end

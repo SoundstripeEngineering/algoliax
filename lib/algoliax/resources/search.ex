@@ -1,21 +1,30 @@
 defmodule Algoliax.Resources.Search do
   @moduledoc false
-  import Algoliax.Utils, only: [index_name: 2, camelize: 1]
+  import Algoliax.Utils, only: [index_name: 2, camelize: 1, format_queries: 1]
   import Algoliax.Client, only: [request: 1]
 
   def search(module, settings, query, params) do
     index_name = index_name(module, settings)
 
     body =
-      %{
-        query: query
-      }
+      %{query: query}
       |> Map.merge(camelize(params))
 
     request(%{
       action: :search,
       url_params: [index_name: index_name],
       body: body
+    })
+  end
+
+  def search_multiple(queries, strategy) do
+    request(%{
+      action: :search_multiple,
+      url_params: [],
+      body: %{
+        requests: format_queries(queries),
+        strategy: strategy
+      }
     })
   end
 
