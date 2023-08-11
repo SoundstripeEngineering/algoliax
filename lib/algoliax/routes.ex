@@ -78,7 +78,29 @@ defmodule Algoliax.Routes do
     delete_allowed_source: {"/1/security/sources/{source_cidr_ip}", :write, :delete},
     # Advanced Endpoints
     get_logs: {"/1/logs", :read, :get},
-    task: {"/1/indexes/{index_name}/task/{task_id}", :read, :get}
+    task: {"/1/indexes/{index_name}/task/{task_id}", :read, :get},
+    # Analytics Status Endpoint
+    analytics_status: {"/2/status", :analytics, :get},
+    # Search Analytics Endpoints
+    top_searches: {"/2/searches", :analytics, :get},
+    count_searches: {"/2/searches/count", :analytics, :get},
+    no_results: {"/2/searches/noResults", :analytics, :get},
+    no_clicks: {"/2/searches/noClicks", :analytics, :get},
+    no_result_rate: {"/2/searches/noResultRate", :analytics, :get},
+    no_click_rate: {"/2/searches/noClickRate", :analytics, :get},
+    top_hits: {"/2/hits", :analytics, :get},
+    count_users: {"/2/users/count", :analytics, :get},
+    top_filters: {"/2/filters", :analytics, :get},
+    top_filters_no_results: {"/2/filters/noResults", :analytics, :get},
+    top_filters_for_attributes: {"/2/filters/{attribute_list}", :analytics, :get},
+    top_filters_for_attribute: {"/2/filters/{attribute}", :analytics, :get},
+    top_countries: {"/2/countries", :analytics, :get},
+    # Click Analytics Endpoints
+    average_click_position: {"/2/clicks/averageClickPosition", :analytics, :get},
+    click_positions: {"/2/clicks/positions", :analytics, :get},
+    click_through_rate: {"/2/clicks/clickThroughRate", :analytics, :get},
+    # Conversion Analytics Endpoints
+    conversion_rate: {"/2/conversions/conversionRate", :analytics, :get}
   }
 
   def url(action, url_params \\ [], retry \\ 0) do
@@ -117,6 +139,11 @@ defmodule Algoliax.Routes do
     |> Kernel.<>(path)
   end
 
+  defp build_url(path, :analytics, _) do
+    url_analytics()
+    |> Kernel.<>(path)
+  end
+
   defp build_url(path, _, retry) do
     url_retry()
     |> String.replace(~r/{{application_id}}/, Config.application_id())
@@ -135,6 +162,11 @@ defmodule Algoliax.Routes do
       "http://localhost:#{port}/{{application_id}}/write"
     end
 
+    defp url_analytics do
+      port = System.get_env("SLACK_MOCK_API_PORT", "8003")
+      "http://localhost:#{port}/analytics"
+    end
+
     defp url_retry do
       port = System.get_env("SLACK_MOCK_API_PORT", "8002")
       "http://localhost:#{port}/{{application_id}}/{{retry}}-retry"
@@ -146,6 +178,10 @@ defmodule Algoliax.Routes do
 
     defp url_write do
       "https://{{application_id}}.algolia.net"
+    end
+
+    defp url_analytics do
+      "https://analytics.algolia.com"
     end
 
     defp url_retry do
