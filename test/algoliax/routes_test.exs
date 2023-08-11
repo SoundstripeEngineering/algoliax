@@ -430,8 +430,8 @@ defmodule Algoliax.RoutesTest do
     end
 
     test "url top_filters_for_attributes" do
-      assert Routes.url(:top_filters_for_attributes, attribute_list: "foo") ==
-               {:get, "http://localhost:8003/analytics/2/filters/foo"}
+      assert Routes.url(:top_filters_for_attributes, attribute_list: "foo,bar") ==
+               {:get, "http://localhost:8003/analytics/2/filters/foo,bar"}
     end
 
     test "url top_filters_for_attribute" do
