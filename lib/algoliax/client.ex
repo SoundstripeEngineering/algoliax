@@ -21,52 +21,37 @@ defmodule Algoliax.Client do
       url: url,
       json: body,
       params: url_params,
-      connect_options: [timeout: recv_timeout()]
+      connect_options: [timeout: recv_timeout()],
+      retry: fn response ->
+        response.body
+        |> inspect()
+        |> Logger.debug()
+        request(request, retry + 1)
+        false
+      end
     )
     |> Req.Request.put_headers(request_headers())
     |> Req.Request.run_request()
-    |> build_response()
-
-    # method
-    # |> :hackney.request(url, request_headers(), Jason.encode!(body), [
-    #   :with_body,
-    #   recv_timeout: recv_timeout()
-    # ])
-    # |> case do
-    #   {:ok, code, _headers, response} when code in 200..299 ->
-    #     build_response(response, request)
-
-    #   {:ok, code, _, response} when code in 300..499 ->
-    #     handle_error(code, response, action)
-
-    #   error ->
-    #     Logger.debug("#{inspect(error)}")
-    #     request(request, retry + 1)
-    # end
+    |> build_response(action)
   end
 
-  # defp handle_error(404, response, action) when action in [:get_settings, :get_object] do
-  #   {:error, 404, response}
-  # end
+  defp build_response({%{options: options}, %{status: status, body: body}}, _)
+       when status in 200..299 do
+    Algoliax.Response.new(body, Map.to_list(options))
+  end
+
+  defp build_response({_, %{status: status, body: body}}, action) do
+    handle_error(status, body, action)
+  end
+
+  defp handle_error(404, response, action) when action in [:get_settings, :get_object] do
+    {:error, 404, response}
+  end
 
   defp handle_error(code, response, _action) do
-    error =
-      case Jason.decode(response) do
-        {:ok, response} -> Map.get(response, "message")
-        _ -> response
-      end
+    error = Map.get(response, "message")
 
     raise Algoliax.AlgoliaApiError, %{code: code, error: error}
-  end
-
-  defp build_response({%{options: options}, %{status: status} = response})
-       when status in 200..299 do
-    Algoliax.Response.new(response, options)
-  end
-
-  defp build_response({%{options: options}, %{status: status} = response})
-       when status in 300..499 do
-    Algoliax.Response.new(response, options)
   end
 
   defp request_headers do
