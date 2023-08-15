@@ -85,7 +85,7 @@ defmodule Algoliax.Indexer do
 
   """
 
-  alias Algoliax.Resources.{Index, Object, Search}
+  alias Algoliax.Resources.{Index, Object, Search, Analytics}
 
   @doc """
   Search for index values
@@ -330,6 +330,96 @@ defmodule Algoliax.Indexer do
   @callback get_object_id(model :: map()) :: binary() | :default
 
   @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback analytics_status() :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_searches(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback count_searches(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback no_results(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback no_clicks(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback no_result_rate(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback no_click_rate(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_hits(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback count_users(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_filters(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_filters_no_results(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_filters_for_attributes(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_filters_for_attribute(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback top_countries(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback average_click_position(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback click_positions(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback click_through_rate(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
+  Override this function to provide custom index name for the model
+  """
+  @callback conversion_rate(params :: list()) :: {:ok, map()} | {:error, map()}
+
+  @doc """
   Get index settings from Algolia
   """
   @callback get_settings() :: {:ok, map()} | {:error, map()}
@@ -399,6 +489,96 @@ defmodule Algoliax.Indexer do
       @impl Algoliax.Indexer
       def get_object(model) do
         Object.get_object(__MODULE__, @settings, model)
+      end
+
+      @impl Algoliax.Indexer
+      def analytics_status do
+        Analytics.analytics_status(__MODULE__, @settings)
+      end
+
+      @impl Algoliax.Indexer
+      def top_searches(params \\ []) do
+        Analytics.top_searches(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def count_searches(params \\ []) do
+        Analytics.count_searches(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def no_results(params \\ []) do
+        Analytics.no_results(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def no_clicks(params \\ []) do
+        Analytics.no_clicks(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def no_result_rate(params \\ []) do
+        Analytics.no_result_rate(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def no_click_rate(params \\ []) do
+        Analytics.no_click_rate(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_hits(params \\ []) do
+        Analytics.top_hits(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def count_users(params \\ []) do
+        Analytics.count_users(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_filters(params \\ []) do
+        Analytics.top_filters(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_filters_no_results(params \\ []) do
+        Analytics.top_filters_no_results(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_filters_for_attributes(params \\ []) do
+        Analytics.top_filters_for_attributes(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_filters_for_attribute(params \\ []) do
+        Analytics.top_filters_for_attribute(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def top_countries(params \\ []) do
+        Analytics.top_countries(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def average_click_position(params \\ []) do
+        Analytics.average_click_position(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def click_positions(params \\ []) do
+        Analytics.click_positions(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def click_through_rate(params \\ []) do
+        Analytics.click_through_rate(__MODULE__, @settings, params)
+      end
+
+      @impl Algoliax.Indexer
+      def conversion_rate(params \\ []) do
+        Analytics.conversion_rate(__MODULE__, @settings, params)
       end
 
       if Code.ensure_loaded?(Ecto) do

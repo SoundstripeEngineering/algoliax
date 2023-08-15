@@ -1,7 +1,6 @@
 defmodule Algoliax.RoutesTest do
   use ExUnit.Case, async: true
 
-  alias Algoliax.Resources.Object
   alias Algoliax.Routes
 
   @index_name :algolia_index
@@ -370,6 +369,100 @@ defmodule Algoliax.RoutesTest do
     test "url task" do
       assert Routes.url(:task, index_name: @index_name, task_id: 10) ==
                {:get, "http://localhost:8002/APPLICATION_ID/read/1/indexes/algolia_index/task/10"}
+    end
+
+    # Analytics Status Endpoint
+    test "url analytics_status" do
+      assert Routes.url(:analytics_status) ==
+               {:get, "http://localhost:8003/analytics/2/status"}
+    end
+
+    # Search Analytics Endpoints
+    test "url top_searches" do
+      assert Routes.url(:top_searches) ==
+               {:get, "http://localhost:8003/analytics/2/searches"}
+    end
+
+    test "url count_searches" do
+      assert Routes.url(:count_searches) ==
+               {:get, "http://localhost:8003/analytics/2/searches/count"}
+    end
+
+    test "url no_results" do
+      assert Routes.url(:no_results) ==
+               {:get, "http://localhost:8003/analytics/2/searches/noResults"}
+    end
+
+    test "url no_clicks" do
+      assert Routes.url(:no_clicks) ==
+               {:get, "http://localhost:8003/analytics/2/searches/noClicks"}
+    end
+
+    test "url no_result_rate" do
+      assert Routes.url(:no_result_rate) ==
+               {:get, "http://localhost:8003/analytics/2/searches/noResultRate"}
+    end
+
+    test "url no_click_rate" do
+      assert Routes.url(:no_click_rate) ==
+               {:get, "http://localhost:8003/analytics/2/searches/noClickRate"}
+    end
+
+    test "url top_hits" do
+      assert Routes.url(:top_hits) ==
+               {:get, "http://localhost:8003/analytics/2/hits"}
+    end
+
+    test "url count_users" do
+      assert Routes.url(:count_users) ==
+               {:get, "http://localhost:8003/analytics/2/users/count"}
+    end
+
+    test "url top_filters" do
+      assert Routes.url(:top_filters) ==
+               {:get, "http://localhost:8003/analytics/2/filters"}
+    end
+
+    test "url top_filters_no_results" do
+      assert Routes.url(:top_filters_no_results) ==
+               {:get, "http://localhost:8003/analytics/2/filters/noResults"}
+    end
+
+    test "url top_filters_for_attributes" do
+      assert Routes.url(:top_filters_for_attributes, attribute_list: "foo,bar") ==
+               {:get, "http://localhost:8003/analytics/2/filters/foo,bar"}
+    end
+
+    test "url top_filters_for_attribute" do
+      assert Routes.url(:top_filters_for_attribute, attribute: "foo") ==
+               {:get, "http://localhost:8003/analytics/2/filters/foo"}
+    end
+
+    test "url top_countries" do
+      assert Routes.url(:top_countries) ==
+               {:get, "http://localhost:8003/analytics/2/countries"}
+    end
+
+    # Click Analytics Endpoints
+    test "url average_click_position" do
+      assert Routes.url(:average_click_position) ==
+               {:get, "http://localhost:8003/analytics/2/clicks/averageClickPosition"}
+    end
+
+    test "url click_positions" do
+      assert Routes.url(:click_positions) ==
+               {:get, "http://localhost:8003/analytics/2/clicks/positions"}
+    end
+
+    test "url click_through_rate" do
+      assert Routes.url(:click_through_rate) ==
+               {:get, "http://localhost:8003/analytics/2/clicks/clickThroughRate"}
+    end
+
+    # Conversion Analytics Endpoints
+    test "url conversion_rate" do
+      assert Routes.url(:conversion_rate) ==
+               {:get, "http://localhost:8003/analytics/2/conversions/conversionRate"}
     end
   end
 

@@ -17,6 +17,7 @@ defmodule Algoliax.ApiMockServer do
 
   plug(Plug.Logger, log: :debug)
   plug(:handle_asterisk)
+  plug(:put_resp_content_type, "application/json")
   plug(:match)
   plug(:save_request)
   plug(:dispatch)
@@ -121,7 +122,7 @@ defmodule Algoliax.ApiMockServer do
     send_resp(
       conn,
       403,
-      Jason.encode!(%{"message" => "Index not allowed with this API key", "status" => 403})
+      Jason.encode!(%{message: "Index not allowed with this API key", status: 403})
     )
   end
 
@@ -136,7 +137,7 @@ defmodule Algoliax.ApiMockServer do
         send_resp(conn, 200, Jason.encode!(response))
 
       "error" ->
-        send_resp(conn, 500, "Internal server error :(")
+        send_resp(conn, 500, Jason.encode!(%{message: "Internal server error :("}))
 
       _ ->
         send_resp(conn, 404, Jason.encode!(%{}))
@@ -153,7 +154,7 @@ defmodule Algoliax.ApiMockServer do
         send_resp(conn, 200, Jason.encode!(response))
 
       "error" ->
-        send_resp(conn, 500, "Internal server error :(")
+        send_resp(conn, 500, Jason.encode!(%{message: "Internal server error :("}))
 
       _ ->
         send_resp(conn, 404, Jason.encode!(%{}))
@@ -202,7 +203,7 @@ defmodule Algoliax.ApiMockServer do
     Logger.warning(kind, label: :kind)
     Logger.warning(reason, label: :reason)
     Logger.warning(stack, label: :stack)
-    send_resp(conn, conn.status, "Something went wrong")
+    send_resp(conn, conn.status, Jason.encode!(%{message: "Something went wrong"}))
   end
 
   defp save_request(conn, _) do
