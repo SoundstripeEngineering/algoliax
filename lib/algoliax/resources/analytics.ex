@@ -1,5 +1,5 @@
 defmodule Algoliax.Resources.Analytics do
-  import Algoliax.Utils, only: [index_name: 2, camelize: 1]
+  import Algoliax.Utils, only: [index_name: 2]
   import Algoliax.Client, only: [request: 1]
 
   def analytics_status(module, settings) do

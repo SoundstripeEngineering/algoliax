@@ -1,7 +1,6 @@
 defmodule Algoliax.RoutesTest do
   use ExUnit.Case, async: true
 
-  alias Algoliax.Resources.Object
   alias Algoliax.Routes
 
   @index_name :algolia_index
