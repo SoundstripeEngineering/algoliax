@@ -199,19 +199,13 @@ defmodule Algoliax.ApiMockServer do
     send_resp(conn, 404, "oops")
   end
 
-  defp handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
-    Logger.warning(kind, label: :kind)
-    Logger.warning(reason, label: :reason)
-    Logger.warning(stack, label: :stack)
-    send_resp(conn, conn.status, Jason.encode!(%{message: "Something went wrong"}))
-  end
-
   defp save_request(conn, _) do
     RequestsStore.save(%{
       id: :rand.uniform(100_000),
       method: conn.method,
       path: conn.request_path,
-      body: conn.body_params
+      body: conn.body_params,
+      headers: conn.req_headers
     })
 
     conn

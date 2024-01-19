@@ -58,13 +58,14 @@ if Code.ensure_loaded?(Ecto) do
     end
 
     defp fetch_schemas(module, settings) do
-      Algoliax.Utils.schemas(settings, [module])
+      Algoliax.Utils.schemas(module, settings)
       |> Enum.map(fn
         m when is_tuple(m) -> m
         m -> {m, []}
       end)
     end
 
+    # sobelow_skip ["DOS.BinToAtom"]
     def reindex_atomic(module, settings) do
       Algoliax.UtilsEcto.repo(settings)
       index_name = Algoliax.Utils.index_name(module, settings)
