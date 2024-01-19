@@ -15,8 +15,10 @@ defmodule AlgoliaxTest.StructTest do
       assert %Algoliax.Response{response: %{"taskID" => _, "updatedAt" => _}} = res
 
       assert_request("PUT", %{
-        "searchableAttributes" => ["full_name"],
-        "attributesForFaceting" => ["age"]
+        body: %{
+          "searchableAttributes" => ["full_name"],
+          "attributesForFaceting" => ["age"]
+        }
       })
     end
 
@@ -30,13 +32,15 @@ defmodule AlgoliaxTest.StructTest do
              } = res
 
       assert_request("PUT", %{
-        "age" => 77,
-        "first_name" => "John",
-        "full_name" => "John Doe",
-        "last_name" => "Doe",
-        "nickname" => "john",
-        "objectID" => reference,
-        "updated_at" => 1_546_300_800
+        body: %{
+          "age" => 77,
+          "first_name" => "John",
+          "full_name" => "John Doe",
+          "last_name" => "Doe",
+          "nickname" => "john",
+          "objectID" => reference,
+          "updated_at" => 1_546_300_800
+        }
       })
     end
 
@@ -56,7 +60,9 @@ defmodule AlgoliaxTest.StructTest do
              } = res
 
       assert_request("POST", %{
-        "requests" => [%{"action" => "updateObject", "body" => %{"objectID" => reference1}}]
+        body: %{
+          "requests" => [%{"action" => "updateObject", "body" => %{"objectID" => reference1}}]
+        }
       })
     end
 
@@ -76,10 +82,12 @@ defmodule AlgoliaxTest.StructTest do
              } = res
 
       assert_request("POST", %{
-        "requests" => [
-          %{"action" => "updateObject", "body" => %{"objectID" => reference1}},
-          %{"action" => "deleteObject", "body" => %{"objectID" => reference2}}
-        ]
+        body: %{
+          "requests" => [
+            %{"action" => "updateObject", "body" => %{"objectID" => reference1}},
+            %{"action" => "deleteObject", "body" => %{"objectID" => reference2}}
+          ]
+        }
       })
     end
 
@@ -87,7 +95,7 @@ defmodule AlgoliaxTest.StructTest do
       person = %PeopleStruct{reference: "known", last_name: "Doe", first_name: "John", age: 77}
       assert {:ok, res} = PeopleStruct.get_object(person)
       assert %Algoliax.Response{response: %{"objectID" => "known"}} = res
-      assert_request("GET", %{})
+      assert_request("GET", %{body: %{}})
     end
 
     test "get_object/1 w/ unknown" do
@@ -98,7 +106,7 @@ defmodule AlgoliaxTest.StructTest do
     test "delete_object/1" do
       person = %PeopleStruct{reference: "unknown", last_name: "Doe", first_name: "John", age: 77}
       assert {:ok, _} = PeopleStruct.delete_object(person)
-      assert_request("DELETE", %{})
+      assert_request("DELETE", %{body: %{}})
     end
 
     test "reindex/0" do
@@ -107,28 +115,40 @@ defmodule AlgoliaxTest.StructTest do
 
     test "delete_index/0" do
       assert {:ok, _} = PeopleStruct.delete_index()
-      assert_request("DELETE", %{})
+      assert_request("DELETE", %{body: %{}})
     end
 
     test "get_settings/0" do
       assert {:ok, res} = PeopleStruct.get_settings()
       assert %Algoliax.Response{response: %{"searchableAttributes" => ["test"]}} = res
-      assert_request("GET", %{})
+      assert_request("GET", %{body: %{}})
     end
 
     test "search/2" do
       assert {:ok, _} = PeopleStruct.search("john", %{hitsPerPage: 10})
-      assert_request("POST", %{"query" => "john", "hitsPerPage" => 10})
+      assert_request("POST", %{body: %{"query" => "john", "hitsPerPage" => 10}})
+    end
+
+    test "search/2 with_user_ip" do
+      assert {:ok, _} =
+               Algoliax.with_user_ip("192.168.0.1", fn ->
+                 PeopleStruct.search("john", %{hitsPerPage: 10})
+               end)
+
+      assert_request("POST", %{
+        body: %{"query" => "john", "hitsPerPage" => 10},
+        headers: [{"x-forwarded-for", "192.168.0.1"}]
+      })
     end
 
     test "search_facet/2" do
       assert {:ok, _} = PeopleStruct.search_facet("age", "2")
-      assert_request("POST", %{"facetQuery" => "2"})
+      assert_request("POST", %{body: %{"facetQuery" => "2"}})
     end
 
     test "delete_by/1" do
       assert {:ok, res} = PeopleStruct.delete_by("age > 18")
-      assert_request("POST", %{"params" => "filters=age > 18"})
+      assert_request("POST", %{body: %{"params" => "filters=age > 18"}})
 
       assert %Algoliax.Response{
                response: %{"taskID" => _, "updatedAt" => _}
@@ -147,28 +167,25 @@ defmodule AlgoliaxTest.StructTest do
 
       assert {:ok, res} = PeopleStructRuntimeIndexName.get_object(person)
       assert %Algoliax.Response{response: %{"objectID" => "known"}} = res
-      assert_request("PUT", ~r/people_runtime_index_name\/settings/, %{})
-      assert_request("GET", ~r/people_runtime_index_name\/settings/, %{})
-      assert_request("GET", ~r/people_runtime_index_name\/known/, %{})
+      assert_request("PUT", %{path: ~r/people_runtime_index_name\/settings/, body: %{}})
+      assert_request("GET", %{path: ~r/people_runtime_index_name\/settings/, body: %{}})
+      assert_request("GET", %{path: ~r/people_runtime_index_name\/known/, body: %{}})
     end
   end
 
-  # Too brittle for now.
-  # describe "wait for task" do
-  #   test "save_object/1" do
-  #     reference = :rand.uniform(1_000_000) |> to_string()
-  #     person = %PeopleStruct{reference: reference, last_name: "Doe", first_name: "John", age: 77}
-  #     assert {:ok, res} = PeopleStruct.save_object(person) |> Algoliax.wait_task()
+  describe "wait for task" do
+    reference = :rand.uniform(1_000_000) |> to_string()
+    person = %PeopleStruct{reference: reference, last_name: "Doe", first_name: "John", age: 77}
+    assert {:ok, res} = PeopleStruct.save_object(person) |> Algoliax.wait_task()
 
-  #     assert %Algoliax.Response{
-  #             response: %{"objectID" => ^reference, "taskID" => task_id, "updatedAt" => _}
-  #           } = res
+    assert %Algoliax.Response{
+             response: %{"objectID" => ^reference, "taskID" => task_id, "updatedAt" => _}
+           } = res
 
-  #     # Assert that there are 4 calls to check task status
-  #     assert_request("GET", ~r/algoliax_people_struct\/task\/#{task_id}/, %{})
-  #     assert_request("GET", ~r/algoliax_people_struct\/task\/#{task_id}/, %{})
-  #     assert_request("GET", ~r/algoliax_people_struct\/task\/#{task_id}/, %{})
-  #     assert_request("GET", ~r/algoliax_people_struct\/task\/#{task_id}/, %{})
-  #   end
-  # end
+    # Assert that there are 4 calls to check task status
+    assert_request("GET", %{path: ~r/algoliax_people_struct\/task\/#{task_id}/, body: %{}})
+    assert_request("GET", %{path: ~r/algoliax_people_struct\/task\/#{task_id}/, body: %{}})
+    assert_request("GET", %{path: ~r/algoliax_people_struct\/task\/#{task_id}/, body: %{}})
+    assert_request("GET", %{path: ~r/algoliax_people_struct\/task\/#{task_id}/, body: %{}})
+  end
 end
